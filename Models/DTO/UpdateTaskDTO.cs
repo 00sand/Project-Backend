@@ -6,6 +6,7 @@
         public string TaskDetails { get; set; }
         public DateTime Deadline { get; set; }
         public int Priority { get; set; }
+        public string AssignedUserId { get; set; }
 
     }
 }
