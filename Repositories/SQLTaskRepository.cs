@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using TaskManagerAPI.Data;
 using TaskManagerAPI.Models.Domain;
 
@@ -69,7 +69,7 @@ namespace TaskManagerAPI.Repositories
             .FirstOrDefaultAsync(x => x.TaskId == id);
         }
 
-        public async Task<TaskModel?> UpdateAsync(Guid id, TaskModel taskModel)
+        public async Task<TaskModel?> UpdateAsync(Guid id, TaskModel updatedTask)
         {
             var existingTask = await dbContext.Tasks.FirstOrDefaultAsync(x => x.TaskId == id);
 
@@ -78,8 +78,20 @@ namespace TaskManagerAPI.Repositories
                 return null;
             }
 
-            existingTask.Title = taskModel.Title;
-            existingTask.TaskDetails = taskModel.TaskDetails;
+            if (updatedTask.Title != null)
+                existingTask.Title = updatedTask.Title;
+
+            if (updatedTask.TaskDetails != null)
+                existingTask.TaskDetails = updatedTask.TaskDetails;
+
+            if (updatedTask.AssignedUserId != null) 
+                existingTask.AssignedUserId = updatedTask.AssignedUserId;
+
+            if (updatedTask.Deadline != default(DateTime)) // Check if a date is set
+                existingTask.Deadline = updatedTask.Deadline;
+
+            if (updatedTask.Priority != default(int)) // Assuming Priority is an int
+                existingTask.Priority = updatedTask.Priority;
 
             await dbContext.SaveChangesAsync();
             return existingTask;
@@ -100,3 +112,4 @@ namespace TaskManagerAPI.Repositories
         }
     }
 }
+
