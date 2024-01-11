@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -87,14 +87,24 @@ namespace TaskManagerAPI.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Update(Guid id, [FromBody] UpdateTaskDTO updateTaskDTO)
         {
-            var taskDomainModel = mapper.Map<TaskModel>(updateTaskDTO);
-            var updatedTask = await taskRepository.UpdateAsync(id, taskDomainModel);
+            var existingTask = await taskRepository.GetByIdAsync(id);
+            if (existingTask == null)
+            {
+                return NotFound();
+            }
 
-            if (updatedTask == null) return NotFound();
+            mapper.Map(updateTaskDTO, existingTask);
+
+            var updatedTask = await taskRepository.UpdateAsync(id, existingTask);
+
+            if (updatedTask == null)
+            {
+                return NotFound();
+            }
 
             return Ok(mapper.Map<TaskDTO>(updatedTask));
-            ;
         }
+
 
         [HttpDelete("{id}")]
         [Authorize(Roles = "Admin")]
